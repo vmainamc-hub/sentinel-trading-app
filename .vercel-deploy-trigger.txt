@@ -1,0 +1,2 @@
+Temporary deployment trigger for Vercel Git integration verification.
+This file is intentionally harmless and can be removed after the deployment is verified.
