@@ -20,6 +20,25 @@ const LocalFooter = observer(() => {
     const { isDesktop } = useDevice();
     const Wrapper = isDesktop ? React.Fragment : Button.Group;
 
+    const handleOpen = async () => {
+        try {
+            // The imported strategy must be committed to the live workspace before
+            // the modal is closed or the temporary import state is cleared.
+            await loadStrategyOnBotBuilder();
+            await saveStrategyToLocalStorage();
+
+            setLoadedLocalFile(null);
+            toggleLoadModal();
+            setPreviewOnPopup(false);
+            setOpenSettings(NOTIFICATION_TYPE.BOT_IMPORT);
+        } catch (error) {
+            // Import/load errors are expected to be handled as bot-import failures,
+            // not allowed to become unhandled promise rejections that can take down
+            // the React tree and show the generic "Sorry for the interruption" page.
+            console.error('Failed to open imported bot:', error);
+        }
+    };
+
     return (
         <Wrapper>
             {!isDesktop && (
@@ -27,14 +46,7 @@ const LocalFooter = observer(() => {
             )}
             <Button
                 text={localize('Open')}
-                onClick={() => {
-                    loadStrategyOnBotBuilder();
-                    saveStrategyToLocalStorage();
-                    setLoadedLocalFile(null);
-                    toggleLoadModal();
-                    setPreviewOnPopup(false);
-                    setOpenSettings(NOTIFICATION_TYPE.BOT_IMPORT);
-                }}
+                onClick={handleOpen}
                 is_loading={is_open_button_loading}
                 has_effect
                 primary
