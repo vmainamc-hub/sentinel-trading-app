@@ -6,13 +6,32 @@ const StopBotModal = observer(() => {
     const { run_panel, quick_strategy, summary_card } = useStore();
 
     const { is_contract_dialog_open, is_stop_bot_dialog_open, toggleStopBotDialog } = quick_strategy;
-    const { is_running, closeMultiplierContract, stopMyBot, is_dialog_open } = run_panel;
+    const {
+        is_running,
+        closeMultiplierContract,
+        stopMyBot,
+        is_dialog_open,
+        setIsRunning,
+        setHasOpenContract,
+        unregisterBotListeners,
+    } = run_panel;
     const { is_multiplier } = summary_card;
+
+    // Terminating a bot is intentionally immediate. Finalise the UI/runtime
+    // state synchronously as well, so an async interpreter shutdown cannot
+    // leave the workspace in a stale "running" state while the user imports
+    // or opens another strategy.
+    const handleStopMyBot = () => {
+        stopMyBot();
+        setIsRunning(false);
+        setHasOpenContract(false);
+        unregisterBotListeners();
+    };
 
     return (
         <StopBotModalContent
             is_running={is_running}
-            onOkButtonClick={stopMyBot}
+            onOkButtonClick={handleStopMyBot}
             is_contract_dialog_open={is_contract_dialog_open}
             is_stop_bot_dialog_open={is_stop_bot_dialog_open}
             is_multiplier={is_multiplier}
